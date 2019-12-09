@@ -1,7 +1,6 @@
 # CurrencyConverter
 
-A new Flutter project.
-
+A currency converter demo in Flutter using RapidApi's [CurrencyExchange](https://rapidapi.com/fyhao/api/currency-exchange) demo.
 ## Getting Started
 
 This project is a starting point for a Flutter application.
