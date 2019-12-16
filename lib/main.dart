@@ -1,10 +1,14 @@
-import 'package:currency_converter/Webservice.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
+import 'package:currency_converter/CurrencyFrom.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
+String frmBtn = 'From';
+String toBtn = 'To';
 
 void main() => runApp(MaterialApp(
   home: Home(),
@@ -12,8 +16,9 @@ void main() => runApp(MaterialApp(
 ));
 
 class Home extends StatefulWidget {
+ final currencyFromView;
   const Home(
-    {Key key}) : super(key: key);
+    {Key key, this.currencyFromView}) : super(key: key);
 
   @override
   _HomeState createState() => _HomeState();
@@ -21,7 +26,8 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
 
-    List<String> currencies = <String>['AUD','USD','INR','EUR','JPY','GBP','CAD','HKD','NZD','SGD','RUB','ZAR','IDR','MYR'];
+    List<String> currencies = <String>['AUD','USD','INR','EUR','JPY','GBP'];
+    //    List<String> currencies = <String>['AUD','USD','INR','EUR','JPY','GBP','CAD','HKD','NZD','SGD','RUB','ZAR','IDR','MYR'];
 
     String defaultValue = 'AUD';
     String secondValue = 'INR';
@@ -29,10 +35,10 @@ class _HomeState extends State<Home> {
     String currencyTo = 'INR';
     String rate = '0.0';
 
-
     Future <String> fetchData() async{
+
     final response = await http.get(
-        Uri.encodeFull('https://currency-exchange.p.rapidapi.com/exchange?q=1.0&from=$currencyFrom&to=$currencyTo'),
+        Uri.encodeFull('https://currency-exchange.p.rapidapi.com/exchange?q=1.0&from=$frmBtn&to=$toBtn'),
         headers: {"x-rapidapi-host": "currency-exchange.p.rapidapi.com",
                   "x-rapidapi-key": "a5iA8cQkhomshtCrWz32wErhlsWgp1oXi4YjsnqOR1SzGmhfzq"}
     );
@@ -61,6 +67,7 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         title: Text('Currency Converter'),
       ),
+      resizeToAvoidBottomInset: true,
       body: Column(
         children: <Widget>[
           Padding(
@@ -70,33 +77,31 @@ class _HomeState extends State<Home> {
                                    fontWeight: FontWeight.bold,
                                    fontSize: 25.0),),
           ),
-          DropdownButton<String>(
-                      hint: Text('Select currency from'),
-                      value: defaultValue,
-                      icon: Icon(Icons.arrow_drop_down),
-                      iconSize: 24,
-                      elevation: 16,
-                      style: TextStyle(color: Colors.blueGrey),
-                            underline: Container(
-                              height: 2,
-                              color: Colors.grey,
-                            ),
-                      onChanged: (String newValue){
-                        setState(() {
-                          defaultValue = newValue;
-                          currencyFrom = newValue;
-                        });
-                      },
-                      items: currencies
-                      .map<DropdownMenuItem<String>>((String value){
-                        return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                        );
-                      }).toList(),
-                    ), 
 
-        Padding(
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: SizedBox(
+              height: 50,
+              width: double.infinity,
+              child: RaisedButton(
+              color: Colors.blueAccent,
+                  textColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0)
+                  ),
+              onPressed: (){
+                  _selectCurrencyFrom(context);
+              },
+              
+              child: Text('$frmBtn',
+                        style: TextStyle(color: Colors.white,
+                                     fontWeight: FontWeight.bold,
+                                     fontSize: 25.0)),
+            ),
+            )
+          ),
+
+          Padding(
           padding: const EdgeInsets.all(20.0),
           child: Text('Select a currency to which you want to convert:',
                 style: TextStyle(color: Colors.blueGrey,
@@ -104,39 +109,41 @@ class _HomeState extends State<Home> {
                                      fontSize: 25.0)),
         ),
 
-        DropdownButton<String>(
-                      hint: Text('Select currency to'),
-                      value: secondValue,
-                      icon: Icon(Icons.arrow_drop_down),
-                      iconSize: 24,
-                      elevation: 16,
-                      style: TextStyle(color: Colors.blueGrey),
-                            underline: Container(
-                              height: 2,
-                              color: Colors.grey,
-                            ),
-                      onChanged: (String newValue){
-                        setState(() {
-                          secondValue = newValue;
-                          currencyTo = newValue;
-                        });
-                      },
-                      items: currencies
-                      .map<DropdownMenuItem<String>>((String value){
-                        return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                        );
-                      }).toList(),
-                    ), 
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: SizedBox(
+              height: 50,
+              width: double.infinity,
+              child: RaisedButton(
+              color: Colors.blueAccent,
+                  textColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0)
+                  ),
+              onPressed: (){
+                  _selectCurrencyTo(context);
+              },
+              
+              child: Text('$toBtn',
+                        style: TextStyle(color: Colors.white,
+                                     fontWeight: FontWeight.bold,
+                                     fontSize: 25.0)),
+            ),
+            )
+          ),
+
+
+        
+
+
           
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: SizedBox(
-                width: 200.0,
+                width: double.infinity,
                 height: 50.0,
                 child: RaisedButton(
-                color: Colors.blueAccent,
+                color: Colors.deepOrangeAccent,
                 textColor: Colors.white,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20.0)
@@ -147,7 +154,7 @@ class _HomeState extends State<Home> {
                 child: Text('Convert',
                       style: TextStyle(color: Colors.white,
                                    fontWeight: FontWeight.bold,
-                                   fontSize: 20.0)),
+                                   fontSize: 30.0)),
               ),
             ),
           ),
@@ -161,8 +168,39 @@ class _HomeState extends State<Home> {
   }
 }
 
+_selectCurrencyFrom(BuildContext context) async{
+    final selectedCurrency = await Navigator.push(context, 
+              MaterialPageRoute(builder: (context) => CurrencyFrom()));
+    print('$selectedCurrency');
 
-/*void _fetchCurrencyRate() async{
-    final result = await Webservice().fetchData();
-    print('$result');
-}*/
+    final cFrom = await SharedPreferences.getInstance();
+    cFrom.setString('CurrencyFrom', '$selectedCurrency'); 
+
+    if(selectedCurrency == null){
+        frmBtn = 'From';
+    }
+    else{
+        frmBtn = selectedCurrency;
+    }
+    
+  
+}
+
+_selectCurrencyTo(BuildContext context) async{
+    final selectedCurrency = await Navigator.push(context, 
+              MaterialPageRoute(builder: (context) => CurrencyFrom()));
+    print('$selectedCurrency');
+
+    final cFrom = await SharedPreferences.getInstance();
+    cFrom.setString('CurrencyTo', '$selectedCurrency');   
+
+    if(selectedCurrency == null){
+        toBtn = 'To';
+    }
+    else{
+        toBtn = selectedCurrency;
+    }
+}
+
+
+
